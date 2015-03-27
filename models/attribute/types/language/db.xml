@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<schema version="0.3">
+<table name="atLanguage">
+    <field name="avID" type="I" size="10">
+      <KEY/>
+      <DEFAULT value="0"/>
+      <UNSIGNED/>
+    </field>
+   <field name="value" type="C" size="32">
+      <NOTNULL/>
+    </field>
+  </table>
+  
+  <table name="atLanguageRelations">
+    <field name="relationID" type="I" size="32">
+   	  <PRIMARY/>
+	  <AUTOINCREMENT/>
+      <KEY/>
+	  <UNSIGNED/>
+    </field>
+	<field name="oID" type="I" size="10">
+      <KEY/>
+      <UNSIGNED/>
+    </field>
+	<field name="akID" type="I" size="10">
+      <KEY/>
+      <UNSIGNED/>
+    </field>
+   
+  </table>
+  
+</schema>
