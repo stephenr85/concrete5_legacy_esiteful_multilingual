@@ -314,7 +314,7 @@ class LanguageAttributeTypeController extends AttributeTypeController  {
 			$db->Execute('delete from atLanguageRelations where oID = ? and akID = ?', array($oID, $akID));
 
 			if($akcHandle == 'collection'){
-				Log::addEntry(print_r($db->Execute('delete from MultilingualPageRelations where cID = ?', array($oID)), true), __CLASS__);
+				$db->Execute('delete from MultilingualPageRelations where cID = ?', array($oID));
 			}
 		}
 	}
@@ -386,12 +386,12 @@ class LanguageAttributeTypeController extends AttributeTypeController  {
 	public function pullPageRelations(){
 		$db = Loader::db();
 		$relationID = $this->getRelationID();
-		$db->Execute("delete from atLanguageRelations where relationID = '$relationID';");
-
 		$akID = $this->getAttributeKey()->getAttributeKeyID();
+		$db->Execute("delete from atLanguageRelations where relationID = ?", array($relationID));
+
 		$mpRelationID = $db->GetOne("select mpRelationID from MultilingualPageRelations where cID = ?", array($this->getValueOwnerID()));
 		if($mpRelationID){
-			$db->Execute("INSERT INTO atLanguageRelations (oID, relationID, akID) SELECT cID, $relationID, $akID FROM MultilingualPageRelations WHERE mpRelationID = '$mpRelationID'");
+			$db->Execute("INSERT INTO atLanguageRelations (oID, relationID, akID) SELECT DISTINCT(cID) AS cID, $relationID, $akID FROM MultilingualPageRelations WHERE mpRelationID = '$mpRelationID'");
 		}
 	}
 	
