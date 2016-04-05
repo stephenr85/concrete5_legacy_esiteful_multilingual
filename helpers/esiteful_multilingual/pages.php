@@ -55,6 +55,7 @@ class EsitefulMultilingualPagesHelper {
 		$db = Loader::db();
 		$newSection = MultilingualSection::getBySectionOfSite($newPage);
 		$oldSection = MultilingualSection::getBySectionOfSite($oldPage);
+		if(!$newSection || !$oldSection) return;
 		if($newSection->getLanguage() != $oldSection->getLanguage()){
 			//Set association between pages, if different languages
 			$attrValue = $oldPage->getAttributeValueObject('language');	
@@ -94,12 +95,21 @@ class EsitefulMultilingualPagesHelper {
 	}
 
 	public function on_multilingual_page_relate($page, $locale){
-		Log::addEntry(t('on_multilingual_page_relate: %s', $page->getCollectionPath()), __CLASS__);
+		Log::addEntry(t('on_multilingual_page_relate: %s', var_export($page)), __CLASS__);
 		$helper = Loader::helper('esiteful_multilingual/pages', 'esiteful_multilingual');
 		
 		$attrValue = $page->getAttributeValueObject('language', true);
+		if(!($attrValue instanceof CollectionAttributeValue)){ //For some reason, the getAttributeValueObject above does not always return the correct kind of value object
+			$attrValue = CollectionAttributeValue::getByID($attrValue->avID);
+			if(!$attrValue) return;
+		}
+		//var_dump($attrValue);
 		$attrValue->setCollection($page);
-		$attrController = $attrValue->getAttributeKey()->getController();
+		$ak = $attrValue->getAttributeKey();
+		if(!is_object($ak)){
+			$ak = CollectionAttributeKey::getByID($attrValue->akID);
+		}
+		$attrController = $ak->getController();
 		$attrController->setAttributeValue($attrValue);
 		$attrController->pullPageRelations();	
 	}
