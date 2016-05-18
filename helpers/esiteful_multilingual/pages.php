@@ -95,7 +95,7 @@ class EsitefulMultilingualPagesHelper {
 	}
 
 	public function on_multilingual_page_relate($page, $locale){
-		Log::addEntry(t('on_multilingual_page_relate: %s', var_export($page)), __CLASS__);
+		Log::addEntry(t('on_multilingual_page_relate: %s', var_export($page, true)), __CLASS__);
 		$helper = Loader::helper('esiteful_multilingual/pages', 'esiteful_multilingual');
 		
 		$attrValue = $page->getAttributeValueObject('language', true);
