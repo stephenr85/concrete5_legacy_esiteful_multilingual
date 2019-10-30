@@ -27,6 +27,21 @@ class LanguageAttributeTypeController extends AttributeTypeController  {
 	public function getDisplaySanitizedValue(){
 		return $this->getDisplayValue();	
 	}
+
+	public function getExportValue(){
+		$vals = [$this->getValue()];		
+		$relations = $this->getRelations($expensive = true);
+		$akcHandle = $this->getAttributeKeyCategoryHandle();
+		foreach($relations as $relation){
+			if($akcHandle == 'collection'){
+				$relation['oID'] = ContentExporter::replacePageWithPlaceHolder($relation['oID']);
+			} else if($akcHandle == 'file'){
+				$relation['oID'] = ContentExporter::replaceFileWithPlaceHolder($relation['oID']);
+			}
+			$vals[] = $relation['value'] . '=' . $relation['oID'];
+		}
+		return implode(',', $vals);
+	}
 	
 
 	public function searchForm($list) {
@@ -171,6 +186,11 @@ class LanguageAttributeTypeController extends AttributeTypeController  {
 
 	public function saveValue($value) {
 		$db = Loader::db();
+		$akcHandle = $this->getAttributeKeyCategoryHandle();
+		if($akcHandle === 'collection'){
+			$section = MultilingualSection::getBySectionOfSite($this->getValueOwner());
+			$value = $section->msLanguage;
+		}
 		$db->Replace('atLanguage', array('avID' => $this->getAttributeValueID(), 'value' => $value), 'avID', true);
 	}
 	
@@ -427,6 +447,19 @@ class LanguageAttributeTypeController extends AttributeTypeController  {
 	
 		return $relations;
 	}
+
+	public function exportValue(SimpleXMLElement $akv) {
+			$val = $this->getExportValue();
+			if (is_object($val)) {
+				$val = (string) $val;
+			}
+
+			$cnode = $akv->addChild('value');
+			$node = dom_import_simplexml($cnode);
+			$no = $node->ownerDocument;
+			$node->appendChild($no->createCDataSection($val));
+	 		return $cnode;
+	 	}
 	
 	public function print_pre($thing, $return=false){
 		$out = '<pre style="white-space:pre;">';
